@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Farmer to Customer</title>
+  <style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --green: #2e7d32; --green-light: #e8f5e9; --dark: #1b3a1d;
+  --red: #c62828; --gray: #666; --border: #dfe6df;
+}
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f8f3; color: #222; }
+.hidden { display: none !important; }
+
+/* Auth */
+.auth-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, #a5d6a7, #e8f5e9); padding: 16px; }
+.auth-card { background: #fff; padding: 32px; border-radius: 16px; width: 100%; max-width: 380px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.15); text-align: center; }
+.auth-card h1 { color: var(--green); }
+.sub { color: var(--gray); margin: 6px 0 20px; font-size: 14px; }
+.tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+.tab { flex: 1; padding: 10px; border: 2px solid var(--border); background: #fff; border-radius: 10px;
+  cursor: pointer; font-size: 15px; }
+.tab.active { border-color: var(--green); background: var(--green-light); font-weight: 600; }
+form input, form select, .card input, .card select {
+  width: 100%; padding: 11px 12px; margin-bottom: 12px; border: 1px solid var(--border);
+  border-radius: 8px; font-size: 15px; }
+input:focus, select:focus { outline: 2px solid #81c784; }
+.switch { margin-top: 14px; font-size: 14px; }
+.switch a { color: var(--green); font-weight: 600; text-decoration: none; }
+.msg { margin-top: 10px; color: var(--red); font-size: 14px; min-height: 18px; }
+
+/* Buttons */
+.btn { padding: 10px 16px; border: none; border-radius: 8px; cursor: pointer; font-size: 15px;
+  background: #e0e0e0; }
+.btn.primary { background: var(--green); color: #fff; width: 100%; }
+.row .btn.primary { width: auto; }
+.btn.danger { background: var(--red); color: #fff; }
+.btn.small { padding: 6px 12px; font-size: 13px; }
+.btn.full { width: 100%; }
+.btn:hover { opacity: .9; }
+
+/* Layout */
+.topbar { background: var(--green); color: #fff; padding: 14px 20px; display: flex;
+  justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+.topbar span { margin-right: 10px; }
+.container { max-width: 1100px; margin: 20px auto; padding: 0 16px; }
+.card { background: #fff; border-radius: 12px; padding: 18px; margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.card h3 { margin-bottom: 12px; color: var(--dark); }
+.grid { display: grid; gap: 16px; }
+.grid.two { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.grid.two-wide { grid-template-columns: 2fr 1fr; align-items: start; }
+.row { display: flex; gap: 10px; }
+.row input, .row select { margin-bottom: 12px; }
+.row.between { justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.chip { background: var(--green-light); border: 1px solid #a5d6a7; padding: 6px 12px;
+  border-radius: 20px; font-size: 14px; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
+.chip.active { background: var(--green); color: #fff; }
+.chip .x { color: var(--red); font-weight: bold; }
+.chip.active .x { color: #fff; }
+
+/* Table */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 10px; text-align: left; border-bottom: 1px solid var(--border); font-size: 14px; }
+th { background: var(--green-light); }
+td input { width: 80px; margin: 0; padding: 6px; }
+.badge { padding: 3px 10px; border-radius: 12px; font-size: 12px; }
+.badge.in { background: #c8e6c9; color: #1b5e20; }
+.badge.out { background: #ffcdd2; color: #b71c1c; }
+
+/* Customer products */
+.products { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+.product { background: #fff; border-radius: 12px; padding: 14px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.product .emoji { font-size: 40px; text-align: center; }
+.product img { width: 100%; height: 120px; object-fit: cover; border-radius: 8px; }
+.lbl { display: block; font-size: 13px; color: var(--gray); margin-bottom: 4px; }
+.addr { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px;
+  font-family: inherit; margin: 8px 0; resize: vertical; }
+.pay { display: flex; flex-direction: column; gap: 6px; font-size: 14px; margin-bottom: 10px; }
+.pay input { width: auto; margin: 0 6px 0 0; }
+.product h4 { margin: 6px 0 2px; }
+.product small { color: var(--gray); display: block; }
+.product .price { color: var(--green); font-weight: 700; margin: 6px 0; }
+.product .buy { display: flex; gap: 6px; }
+.product .buy input { width: 60px; margin: 0; padding: 6px; }
+.product .buy .btn { flex: 1; padding: 6px; background: var(--green); color: #fff; }
+.product.out { opacity: .55; }
+
+/* Cart / Orders */
+.sticky { position: sticky; top: 10px; }
+.cart-item { display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 0; border-bottom: 1px dashed var(--border); font-size: 14px; }
+.cart-item button { background: none; border: none; color: var(--red); cursor: pointer; font-size: 16px; }
+.total { font-weight: 700; margin: 12px 0; }
+.order { border: 1px solid var(--border); border-radius: 8px; padding: 10px; margin-bottom: 8px; font-size: 14px; }
+.order small { color: var(--gray); }
+.empty { color: var(--gray); font-size: 14px; }
+
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: #333; color: #fff; padding: 12px 20px; border-radius: 8px; transition: .3s; opacity: 0; z-index: 10; }
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+@media (max-width: 800px) { .grid.two-wide { grid-template-columns: 1fr; } .sticky { position: static; } }
+
+</style>
+</head>
+<body>
+
+  <!-- LOGIN / REGISTER -->
+  <section id="authView" class="auth-wrap">
+    <div class="auth-card">
+      <h1>🌾 Farm2Customer</h1>
+      <p class="sub">Fresh from the farm, straight to you</p>
+
+      <div class="tabs" id="roleTabs">
+        <button class="tab active" data-role="farmer">👨‍🌾 Farmer</button>
+        <button class="tab" data-role="customer">🛒 Customer</button>
+      </div>
+
+      <form id="authForm">
+        <input type="text" id="name" placeholder="Full name" class="hidden">
+        <input type="tel" id="phone" placeholder="Phone number" required>
+        <input type="password" id="password" placeholder="Password" required minlength="4">
+        <button type="submit" class="btn primary" id="authBtn">Login</button>
+      </form>
+
+      <p class="switch">
+        <span id="switchText">New here?</span>
+        <a href="#" id="switchLink">Create account</a>
+      </p>
+      <p class="msg" id="authMsg"></p>
+    </div>
+  </section>
+
+  <!-- APP -->
+  <section id="appView" class="hidden">
+    <header class="topbar">
+      <h2>🌾 Farm2Customer</h2>
+      <div>
+        <span id="welcome"></span>
+        <button class="btn small" id="logoutBtn">Logout</button>
+      </div>
+    </header>
+
+    <!-- FARMER DASHBOARD -->
+    <main id="farmerView" class="container hidden">
+      <div class="grid two">
+        <div class="card">
+          <h3>➕ Add New Group</h3>
+          <form id="groupForm" class="row">
+            <input type="text" id="groupName" placeholder="e.g. Vegetables, Fruits, Spices" required>
+            <button class="btn primary">Add</button>
+          </form>
+          <div id="groupList" class="chips"></div>
+        </div>
+
+        <div class="card">
+          <h3>➕ Add Product</h3>
+          <form id="productForm">
+            <input type="text" id="pName" placeholder="Product name" required>
+            <select id="pGroup" required></select>
+            <div class="row">
+              <input type="number" id="pPrice" placeholder="Price (₹)" min="1" step="0.01" required>
+              <input type="number" id="pQty" placeholder="Stock qty" min="0" required>
+              <select id="pUnit">
+                <option>kg</option><option>dozen</option><option>piece</option><option>litre</option><option>bottle</option>
+              </select>
+            </div>
+            <label class="lbl">Item image (optional)</label>
+            <input type="file" id="pImage" accept="image/*">
+            <button class="btn primary">Add Product</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row between">
+          <h3>📦 My Products</h3>
+          <button class="btn danger" id="removeOutBtn">🗑 Remove Out-of-Stock</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Product</th><th>Group</th><th>Price</th><th>Stock</th><th>Status</th><th></th></tr></thead>
+            <tbody id="myProducts"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>📬 Orders Received</h3>
+        <div id="farmerOrders"></div>
+      </div>
+    </main>
+
+    <!-- CUSTOMER VIEW -->
+    <main id="customerView" class="container hidden">
+      <div class="card">
+        <div class="row">
+          <input type="text" id="search" placeholder="🔍 Search products or farmers...">
+        </div>
+        <div id="filterChips" class="chips"></div>
+      </div>
+
+      <div class="grid two-wide">
+        <div>
+          <div id="productGrid" class="products"></div>
+        </div>
+        <aside>
+          <div class="card sticky">
+            <h3>🛒 Your Cart</h3>
+            <div id="cartItems"></div>
+            <p class="total">Total: ₹<span id="cartTotal">0</span></p>
+            <textarea id="cAddress" rows="2" placeholder="Delivery address" class="addr"></textarea>
+            <div class="pay">
+              <label><input type="radio" name="pay" value="Cash on Delivery" checked> 💵 Cash on Delivery</label>
+              <label><input type="radio" name="pay" value="Online (UPI / Card / Net Banking)"> 📱 Online (UPI / Card / Net Banking)</label>
+            </div>
+            <button class="btn primary full" id="placeOrder">Place Order</button>
+          </div>
+          <div class="card">
+            <h3>🧾 My Orders</h3>
+            <div id="customerOrders"></div>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </section>
+
+  <div id="toast" class="toast"></div>
+  <script>
+/* Farm2Customer - demo app using localStorage (no server needed) */
+
+// ---------- Storage helpers ----------
+const load = (k, d) => JSON.parse(localStorage.getItem(k)) ?? d;
+const save = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+let users    = load('fc_users', []);
+let groups   = load('fc_groups', ['Vegetables', 'Fruits', 'Grains', 'Dairy']);
+let products = load('fc_products', []);
+let orders   = load('fc_orders', []);
+let session  = load('fc_session', null);
+let cart     = [];           // [{id, qty}]
+let role     = 'farmer';     // selected role on login screen
+let isRegister = false;
+let activeGroup = 'All';
+
+const $ = id => document.getElementById(id);
+const persist = () => {
+  save('fc_users', users); save('fc_groups', groups);
+  save('fc_products', products); save('fc_orders', orders);
+};
+const toast = msg => {
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+};
+const emojiFor = g => ({Vegetables:'🥕', Fruits:'🍎', Grains:'🌾', Dairy:'🥛'}[g] || '🧺');
+
+// ---------- Login / Register ----------
+document.querySelectorAll('.tab').forEach(btn => btn.onclick = () => {
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  role = btn.dataset.role;
+});
+
+$('switchLink').onclick = e => {
+  e.preventDefault();
+  isRegister = !isRegister;
+  $('name').classList.toggle('hidden', !isRegister);
+  $('name').required = isRegister;
+  $('authBtn').textContent = isRegister ? 'Create Account' : 'Login';
+  $('switchText').textContent = isRegister ? 'Already have an account?' : 'New here?';
+  $('switchLink').textContent = isRegister ? 'Login' : 'Create account';
+  $('authMsg').textContent = '';
+};
+
+$('authForm').onsubmit = e => {
+  e.preventDefault();
+  const phone = $('phone').value.trim();
+  const password = $('password').value;
+  const name = $('name').value.trim();
+
+  if (isRegister) {
+    if (users.some(u => u.phone === phone && u.role === role))
+      return $('authMsg').textContent = 'This phone is already registered as ' + role + '.';
+    const user = { id: uid(), name, phone, password, role };
+    users.push(user); persist();
+    startSession(user);
+  } else {
+    const user = users.find(u => u.phone === phone && u.password === password && u.role === role);
+    if (!user) return $('authMsg').textContent = 'Wrong phone, password or role.';
+    startSession(user);
+  }
+};
+
+function startSession(user) {
+  session = user; save('fc_session', session);
+  $('authForm').reset(); $('authMsg').textContent = '';
+  showApp();
+}
+
+$('logoutBtn').onclick = () => {
+  session = null; cart = []; localStorage.removeItem('fc_session');
+  $('appView').classList.add('hidden'); $('authView').classList.remove('hidden');
+};
+
+function showApp() {
+  $('authView').classList.add('hidden');
+  $('appView').classList.remove('hidden');
+  $('welcome').textContent = `${session.role === 'farmer' ? '👨‍🌾' : '🛒'} ${session.name}`;
+  $('farmerView').classList.toggle('hidden', session.role !== 'farmer');
+  $('customerView').classList.toggle('hidden', session.role !== 'customer');
+  session.role === 'farmer' ? renderFarmer() : renderCustomer();
+}
+
+// ---------- Farmer ----------
+function renderFarmer() {
+  // groups
+  $('groupList').innerHTML = groups.map(g =>
+    `<span class="chip">${esc(g)} <span class="x" data-g="${esc(g)}" title="Remove group">✕</span></span>`).join('');
+  $('pGroup').innerHTML = groups.map(g => `<option>${esc(g)}</option>`).join('');
+
+  // my products
+  const mine = products.filter(p => p.farmerId === session.id);
+  $('myProducts').innerHTML = mine.length ? mine.map(p => `
+    <tr>
+      <td>${esc(p.name)}</td>
+      <td>${esc(p.group)}</td>
+      <td>₹${p.price}/${esc(p.unit)}</td>
+      <td><input type="number" min="0" value="${p.qty}" data-stock="${p.id}"></td>
+      <td><span class="badge ${p.qty > 0 ? 'in' : 'out'}">${p.qty > 0 ? 'In stock' : 'Out of stock'}</span></td>
+      <td><button class="btn small danger" data-del="${p.id}">Delete</button></td>
+    </tr>`).join('') : '<tr><td colspan="6" class="empty">No products yet. Add your first one above.</td></tr>';
+
+  // orders received
+  const myOrders = orders.filter(o => o.items.some(i => i.farmerId === session.id)).reverse();
+  $('farmerOrders').innerHTML = myOrders.length ? myOrders.map(o => `
+    <div class="order">
+      <strong>${esc(o.customerName)}</strong> (${esc(o.customerPhone)}) <small>· ${new Date(o.date).toLocaleString()}</small><br>
+      <small>📍 ${esc(o.address || '-')} · 💳 ${esc(o.payment || '-')}</small>
+      <ul>${o.items.filter(i => i.farmerId === session.id)
+        .map(i => `<li>${esc(i.name)} × ${i.qty} ${esc(i.unit)} = ₹${i.qty * i.price}</li>`).join('')}</ul>
+    </div>`).join('') : '<p class="empty">No orders yet.</p>';
+}
+
+$('groupForm').onsubmit = e => {
+  e.preventDefault();
+  const g = $('groupName').value.trim();
+  if (!g) return;
+  if (groups.some(x => x.toLowerCase() === g.toLowerCase())) return toast('Group already exists');
+  groups.push(g); persist(); $('groupName').value = '';
+  renderFarmer(); toast('Group added');
+};
+
+$('groupList').onclick = e => {
+  const g = e.target.dataset.g;
+  if (!g) return;
+  const count = products.filter(p => p.group === g).length;
+  if (count && !confirm(`"${g}" has ${count} product(s). Remove group and its products?`)) return;
+  groups = groups.filter(x => x !== g);
+  products = products.filter(p => p.group !== g);
+  persist(); renderFarmer(); toast('Group removed');
+};
+
+// Read an image file and shrink it so it fits in localStorage
+const readImage = file => new Promise(resolve => {
+  if (!file) return resolve('');
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, 400 / img.width);
+      const c = document.createElement('canvas');
+      c.width = img.width * scale; c.height = img.height * scale;
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      resolve(c.toDataURL('image/jpeg', 0.7));
+    };
+    img.onerror = () => resolve('');
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+$('productForm').onsubmit = async e => {
+  e.preventDefault();
+  const form = e.target;
+  const image = await readImage($('pImage').files[0]);
+  products.push({
+    id: uid(), farmerId: session.id, farmerName: session.name,
+    name: $('pName').value.trim(), group: $('pGroup').value,
+    price: +$('pPrice').value, qty: +$('pQty').value, unit: $('pUnit').value, image
+  });
+  try { persist(); } catch (err) {
+    products.pop(); return toast('Storage full - try a smaller image');
+  }
+  form.reset(); renderFarmer(); toast('Product added');
+};
+
+$('myProducts').onchange = e => {
+  const id = e.target.dataset.stock;
+  if (!id) return;
+  const p = products.find(x => x.id === id);
+  p.qty = Math.max(0, +e.target.value || 0);
+  persist(); renderFarmer();
+};
+
+$('myProducts').onclick = e => {
+  const id = e.target.dataset.del;
+  if (!id) return;
+  products = products.filter(p => p.id !== id);
+  persist(); renderFarmer(); toast('Product deleted');
+};
+
+$('removeOutBtn').onclick = () => {
+  const out = products.filter(p => p.farmerId === session.id && p.qty <= 0).length;
+  if (!out) return toast('No out-of-stock items');
+  products = products.filter(p => !(p.farmerId === session.id && p.qty <= 0));
+  persist(); renderFarmer(); toast(out + ' out-of-stock item(s) removed');
+};
+
+// ---------- Customer ----------
+function renderCustomer() {
+  // filter chips
+  $('filterChips').innerHTML = ['All', ...groups].map(g =>
+    `<span class="chip ${g === activeGroup ? 'active' : ''}" data-f="${esc(g)}">${esc(g)}</span>`).join('');
+
+  const q = $('search').value.trim().toLowerCase();
+  // customers only see items that are in stock
+  const list = products.filter(p => p.qty > 0
+    && (activeGroup === 'All' || p.group === activeGroup)
+    && (p.name.toLowerCase().includes(q) || p.farmerName.toLowerCase().includes(q)));
+
+  $('productGrid').innerHTML = list.length ? list.map(p => `
+    <div class="product">
+      ${p.image ? `<img src="${esc(p.image)}" alt="${esc(p.name)}">` : `<div class="emoji">${emojiFor(p.group)}</div>`}
+      <h4>${esc(p.name)}</h4>
+      <small>by ${esc(p.farmerName)} · ${esc(p.group)}</small>
+      <div class="price">₹${p.price} / ${esc(p.unit)}</div>
+      <small>${p.qty} ${esc(p.unit)} left</small>
+      <div class="buy">
+        <input type="number" min="1" max="${p.qty}" value="1" id="q-${p.id}">
+        <button class="btn" data-add="${p.id}">Add</button>
+      </div>
+    </div>`).join('') : '<p class="empty">No products available right now.</p>';
+
+  renderCart(); renderCustomerOrders();
+}
+
+function renderCart() {
+  $('cartItems').innerHTML = cart.length ? cart.map(c => {
+    const p = products.find(x => x.id === c.id);
+    return p ? `<div class="cart-item"><span>${esc(p.name)} × ${c.qty}</span>
+      <span>₹${p.price * c.qty} <button data-rm="${c.id}">✕</button></span></div>` : '';
+  }).join('') : '<p class="empty">Cart is empty</p>';
+  $('cartTotal').textContent = cart.reduce((s, c) => {
+    const p = products.find(x => x.id === c.id); return s + (p ? p.price * c.qty : 0);
+  }, 0);
+}
+
+function renderCustomerOrders() {
+  const mine = orders.filter(o => o.customerId === session.id).reverse();
+  $('customerOrders').innerHTML = mine.length ? mine.map(o => `
+    <div class="order"><small>${new Date(o.date).toLocaleString()}</small>
+      <ul>${o.items.map(i => `<li>${esc(i.name)} × ${i.qty}</li>`).join('')}</ul>
+      <strong>₹${o.total}</strong> <small>· ${esc(o.payment || '')}</small></div>`).join('') : '<p class="empty">No orders yet.</p>';
+}
+
+$('search').oninput = renderCustomer;
+$('filterChips').onclick = e => {
+  if (e.target.dataset.f) { activeGroup = e.target.dataset.f; renderCustomer(); }
+};
+
+$('productGrid').onclick = e => {
+  const id = e.target.dataset.add;
+  if (!id) return;
+  const p = products.find(x => x.id === id);
+  const qty = Math.min(Math.max(1, +$('q-' + id).value || 1), p.qty);
+  const existing = cart.find(c => c.id === id);
+  existing ? existing.qty = Math.min(existing.qty + qty, p.qty) : cart.push({ id, qty });
+  renderCart(); toast('Added to cart');
+};
+
+$('cartItems').onclick = e => {
+  if (e.target.dataset.rm) { cart = cart.filter(c => c.id !== e.target.dataset.rm); renderCart(); }
+};
+
+$('placeOrder').onclick = () => {
+  if (!cart.length) return toast('Cart is empty');
+  const address = $('cAddress').value.trim();
+  if (!address) return toast('Please enter your delivery address');
+  const payment = document.querySelector('input[name="pay"]:checked').value;
+  const items = [];
+  for (const c of cart) {
+    const p = products.find(x => x.id === c.id);
+    if (!p || p.qty < c.qty) return toast('Some items are no longer available');
+    items.push({ name: p.name, qty: c.qty, price: p.price, unit: p.unit, farmerId: p.farmerId, id: p.id });
+  }
+  items.forEach(i => products.find(p => p.id === i.id).qty -= i.qty);  // reduce stock
+  orders.push({
+    id: uid(), date: Date.now(), customerId: session.id,
+    customerName: session.name, customerPhone: session.phone, address, payment, items,
+    total: items.reduce((s, i) => s + i.price * i.qty, 0)
+  });
+  cart = []; persist(); renderCustomer(); toast('Order placed! 🎉');
+};
+
+// ---------- Start ----------
+if (session && users.some(u => u.id === session.id)) showApp();
+
+</script>
+</body>
+</html>
